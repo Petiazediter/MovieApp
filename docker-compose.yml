@@ -13,8 +13,22 @@ services:
     env_file:
       - ./server/.env
     ports:
-      - ${PORT}:4000
+      - ${SERVER_PORT}:4000
+  client:
+    container_name: client
+    command: bash -c 'npm run start'
+    build: 
+      dockerfile: Dockerfile
+      context: ./client
+    volumes:
+      - .:/opt/app/client:delegated
+      - client_node_modules:/opt/app/client/node_modules
+    env_file:
+      - ./client/.env
+    ports:
+      - ${PORT}:3000
 
 volumes:
+  client_node_modules:
   server_node_modules:
     driver: local
