@@ -4,7 +4,7 @@ RUN apk update
 RUN apk add openssl
 RUN apk add bash
 
-WORKDIR /opt/app
+WORKDIR /opt/app/client
 
 COPY package.json package-lock.json ./
 

@@ -3,7 +3,7 @@ version: '3.4'
 services:
   server:
     container_name: 'backend'
-    command: bash -c 'npm run dev'
+    command: bash -c 'cd server && npm run dev'
     build:
       dockerfile: Dockerfile
       context: ./server
@@ -16,7 +16,7 @@ services:
       - ${SERVER_PORT:-4001}:${SERVER_PORT:-4001}
   client:
     container_name: client
-    command: bash -c 'npm run start'
+    command: bash -c 'cd client && npm run start'
     build: 
       dockerfile: Dockerfile
       context: ./client
