@@ -5,6 +5,7 @@ import cors from 'cors'
 import express from 'express'
 import http from 'http'
 import gql from 'graphql-tag'
+import { Context, resolveContext } from './definitions/context'
 
 const typeDefs = gql`
     type Query {
@@ -12,12 +13,12 @@ const typeDefs = gql`
     }
 `
 
-const startServer = async () => {
+const run = async () => {
     const app = express()
 
     const httpServer = http.createServer(app)
 
-    const server = new ApolloServer({
+    const server = new ApolloServer<Context>({
         typeDefs: [typeDefs],
         resolvers: [],
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
@@ -25,7 +26,9 @@ const startServer = async () => {
 
     await server.start()
 
-    app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server))
+    app.use('/graphql', cors<cors.CorsRequest>(), express.json(), expressMiddleware(server, {
+        context: resolveContext
+    }))
 
     const port = process.env.SERVER_PORT
     await new Promise<void>((resolve) => httpServer.listen({ port: port ? port : 4001 }, resolve))
@@ -34,5 +37,5 @@ const startServer = async () => {
 }
 
 export default { 
-    startServer
+    run
 }
