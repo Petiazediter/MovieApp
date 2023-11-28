@@ -1,9 +1,28 @@
 version: '3.4'
 
 services:
+  database:
+    container_name: database
+    image: postgres
+    restart: always
+    hostname: ${POSTGRES_HOST_NAME}
+    networks:
+      - container_network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST_NAME=${POSTGRES_HOST_NAME}
+    ports:
+      - ${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}
+    volumes:
+      - db_data:/var/lib/postgresql/data
   server:
     container_name: 'backend'
-    command: bash -c 'cd server && npm run dev'
+    command: bash -c 'cd server && npx prisma migrate deploy && npx prisma generate && npm run dev'
+    networks:
+      - container_network
     build:
       dockerfile: Dockerfile
       context: ./server
@@ -12,11 +31,19 @@ services:
        - server_node_modules:/opt/app/server/node_modules
     environment:
       - SERVER_PORT=${SERVER_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - MOVIE_DB_API_KEY=${MOVIE_DB_API_KEY}
+      - MOVIE_DB_READ_ACCESS_TOKEN=${MOVIE_DB_READ_ACCESS_TOKEN}
+      - POSTGRES_HOST_NAME=${POSTGRES_HOST_NAME}
     ports:
       - ${SERVER_PORT:-4001}:${SERVER_PORT:-4001}
+    depends_on:
+      - database
   client:
     container_name: client
     command: bash -c 'cd client && npm run start'
+    networks:
+      - container_network
     build: 
       dockerfile: Dockerfile
       context: ./client
@@ -25,12 +52,16 @@ services:
       - client_node_modules:/opt/app/client/node_modules
     environment:
       - PORT=${PORT}
-      - MOVIE_DB_API_KEY=${MOVIE_DB_API_KEY}
-      - MOVIE_DB_READ_ACCESS_TOKEN=${MOVIE_DB_READ_ACCESS_TOKEN}
     ports:
       - ${PORT:-4000}:${PORT:-4000}
 
 volumes:
   client_node_modules:
   server_node_modules:
+  db_data:
     driver: local
+
+networks:
+  container_network:
+    name: 'container_network'
+    external: false
