@@ -4,6 +4,6 @@ export interface Context {
     // Add your context properties here
 }
 
-export const context = async (params: ExpressContextFunctionArgument): Promise<Context> => {
+export const resolveContext = async (params: ExpressContextFunctionArgument): Promise<Context> => {
     return {}
 }
