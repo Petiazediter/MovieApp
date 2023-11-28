@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const typeDefs = gql`
-    query {
+    type Query {
         healthCheck: Boolean!
     }
 `

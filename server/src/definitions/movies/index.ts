@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 const typeDefs = gql`
     type Movie {
-        id: Number!
+        id: Int!
         title: String!
         coverArt: String!
         description: String!
