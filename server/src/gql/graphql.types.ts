@@ -7,6 +7,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -16,9 +17,29 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type Movie = {
+  __typename?: 'Movie';
+  coverArt: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type MovieResults = {
+  __typename?: 'MovieResults';
+  movies: Array<Movie>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
-  healthCheck?: Maybe<Scalars['Boolean']['output']>;
+  healthCheck: Scalars['Boolean']['output'];
+  searchMovies: MovieResults;
+};
+
+
+export type QuerySearchMoviesArgs = {
+  query: Scalars['String']['input'];
 };
 
 
@@ -93,6 +114,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Movie: ResolverTypeWrapper<Movie>;
+  MovieResults: ResolverTypeWrapper<MovieResults>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
 };
@@ -100,15 +124,35 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
+  Int: Scalars['Int']['output'];
+  Movie: Movie;
+  MovieResults: MovieResults;
   Query: {};
   String: Scalars['String']['output'];
 };
 
+export type MovieResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Movie'] = ResolversParentTypes['Movie']> = {
+  coverArt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MovieResultsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MovieResults'] = ResolversParentTypes['MovieResults']> = {
+  movies?: Resolver<Array<ResolversTypes['Movie']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  healthCheck?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  healthCheck?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  searchMovies?: Resolver<ResolversTypes['MovieResults'], ParentType, ContextType, RequireFields<QuerySearchMoviesArgs, 'query'>>;
 };
 
 export type Resolvers<ContextType = Context> = {
+  Movie?: MovieResolvers<ContextType>;
+  MovieResults?: MovieResultsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 };
 
