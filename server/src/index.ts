@@ -3,5 +3,5 @@ import server from './server'
 
 dotenv.config()
 
-server.startServer()
+server.run()
     .catch((err) => console.error(err))
