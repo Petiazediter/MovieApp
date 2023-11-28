@@ -7,7 +7,8 @@
     "compile": "tsc",
     "build:": "npm run compile && node ./dist/src/index.js",
     "dev": "ts-node-dev --no-notify --transpile-only ./src/index.ts",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "gql-gen": "graphql-codegen --config codegen.yml"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,10 @@
     "@babel/core": "^7.23.3",
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@types/cors": "^2.8.17",
     "@types/jest": "^29.5.10",
     "@types/jsonwebtoken": "^9.0.5",
