@@ -4,6 +4,13 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import cors from 'cors'
 import express from 'express'
 import http from 'http'
+import gql from 'graphql-tag'
+
+const typeDefs = gql`
+    type Query {
+        healthCheck: Boolean
+    }
+`
 
 const startServer = async () => {
     const app = express()
@@ -11,7 +18,7 @@ const startServer = async () => {
     const httpServer = http.createServer(app)
 
     const server = new ApolloServer({
-        typeDefs: [],
+        typeDefs: [typeDefs],
         resolvers: [],
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
     })

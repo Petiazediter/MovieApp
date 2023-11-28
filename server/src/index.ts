@@ -1,5 +1,7 @@
 import dotenv from 'dotenv'
+import server from './server'
+
 dotenv.config()
 
-console.log(process.env.SERVER_PORT)
-console.log('Hello world!')
+server.startServer()
+    .catch((err) => console.error(err))
