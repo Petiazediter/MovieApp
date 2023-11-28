@@ -39,7 +39,8 @@ export type Query = {
 
 
 export type QuerySearchMoviesArgs = {
-  query: Scalars['String']['input'];
+  keyword: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -147,7 +148,7 @@ export type MovieResultsResolvers<ContextType = Context, ParentType extends Reso
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   healthCheck?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  searchMovies?: Resolver<ResolversTypes['MovieResults'], ParentType, ContextType, RequireFields<QuerySearchMoviesArgs, 'query'>>;
+  searchMovies?: Resolver<ResolversTypes['MovieResults'], ParentType, ContextType, RequireFields<QuerySearchMoviesArgs, 'keyword'>>;
 };
 
 export type Resolvers<ContextType = Context> = {

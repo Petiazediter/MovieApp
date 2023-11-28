@@ -15,7 +15,7 @@ const typeDefs = gql`
     }
 
     extend type Query {
-        searchMovies(query: String!): MovieResults!
+        searchMovies(keyword: String!, page: Int): MovieResults!
     }
 `
 
