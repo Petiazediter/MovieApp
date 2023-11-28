@@ -25,6 +25,8 @@ services:
       - client_node_modules:/opt/app/client/node_modules
     environment:
       - PORT=${PORT}
+      - MOVIE_DB_API_KEY=${MOVIE_DB_API_KEY}
+      - MOVIE_DB_READ_ACCESS_TOKEN=${MOVIE_DB_READ_ACCESS_TOKEN}
     ports:
       - ${PORT:-4000}:${PORT:-4000}
 
