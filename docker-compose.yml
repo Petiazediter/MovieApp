@@ -1,6 +1,17 @@
 version: '3.4'
 
 services:
+  cache:
+    container_name: cache
+    image: redis:6.2-alpine
+    ports:
+      - ${REDIS_PORT:-6379}:${REDIS_PORT:-6379}
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD:-password}
+    environment:
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PW=${REDIS_PW}
+    volumes:
+      - cache:/data
   database:
     container_name: database
     image: postgres
@@ -58,6 +69,7 @@ services:
 volumes:
   client_node_modules:
   server_node_modules:
+  cache:
   db_data:
     driver: local
 
