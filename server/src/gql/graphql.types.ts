@@ -17,6 +17,11 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export enum FetchType {
+  Api = 'API',
+  Db = 'DB'
+}
+
 export type Movie = {
   __typename?: 'Movie';
   coverArt: Scalars['String']['output'];
@@ -27,6 +32,7 @@ export type Movie = {
 
 export type MovieResults = {
   __typename?: 'MovieResults';
+  fetchType: FetchType;
   movies: Array<Movie>;
   totalCount: Scalars['Int']['output'];
 };
@@ -115,6 +121,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  FetchType: FetchType;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Movie: ResolverTypeWrapper<Movie>;
   MovieResults: ResolverTypeWrapper<MovieResults>;
@@ -141,6 +148,7 @@ export type MovieResolvers<ContextType = Context, ParentType extends ResolversPa
 };
 
 export type MovieResultsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MovieResults'] = ResolversParentTypes['MovieResults']> = {
+  fetchType?: Resolver<ResolversTypes['FetchType'], ParentType, ContextType>;
   movies?: Resolver<Array<ResolversTypes['Movie']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

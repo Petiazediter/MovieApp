@@ -1,7 +1,14 @@
 import gql from "graphql-tag";
-import { Resolvers } from "../../gql/graphql.types";
+import { FetchType, Resolvers } from "../../gql/graphql.types";
+import { getMovies } from "../../api/getMovies";
 
 const typeDefs = gql`
+
+    enum FetchType {
+        API
+        DB
+    }
+
     type Movie {
         id: Int!
         title: String!
@@ -12,6 +19,7 @@ const typeDefs = gql`
     type MovieResults {
         movies: [Movie!]!
         totalCount: Int!
+        fetchType: FetchType!
     }
 
     extend type Query {
@@ -21,7 +29,17 @@ const typeDefs = gql`
 
 const resolvers: Resolvers = {
     Query: {
-        searchMovies: async (_root, _args, _context) => {
+        searchMovies: async (_root, { keyword, page }, { db }) => {
+
+            const keywordsMatch = await db.searchedKeyword.findMany({
+                where: {
+                    keyword: {
+                        equals: keyword,
+                        mode: 'insensitive'
+                    }
+                }
+            })
+
             const movies = [
                 {
                     id: 1,
@@ -33,7 +51,8 @@ const resolvers: Resolvers = {
 
             return {
                 movies,
-                totalCount: movies.length
+                totalCount: movies.length,
+                fetchType: FetchType.Api
             }
         }
     }
