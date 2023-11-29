@@ -12,7 +12,24 @@ datasource db {
 
 model SearchedKeyword {
   id        Int      @id @default(autoincrement())
-  keyword   String
+  keyword   String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  movies Movie[]
+}
+
+model Movie {
+  id String @unique @id
+  title String
+  overview String
+  releaseDate DateTime
+  backgroundImagePath String
+  posterImagePath String
+  isAdult Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  searchedKeywords SearchedKeyword[]
 }
