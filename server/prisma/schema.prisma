@@ -12,10 +12,17 @@ datasource db {
 
 model SearchedKeyword {
   id        Int      @id @default(autoincrement())
-  keyword   String @unique
+  
+  keyword   String
+  page Int
+  
+  cacheCounter Int @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([keyword, page], name: "keywordIdentifier")
+  
   movies Movie[]
 }
 
