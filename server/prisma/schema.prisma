@@ -31,8 +31,8 @@ model Movie {
   title String
   overview String
   releaseDate DateTime
-  backgroundImagePath String
-  posterImagePath String
+  backgroundImagePath String?
+  posterImagePath String?
   isAdult Boolean
 
   createdAt DateTime @default(now())

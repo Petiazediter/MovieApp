@@ -15,7 +15,7 @@ const typeDefs = gql`
     type Movie {
         id: Int!
         title: String!
-        coverArt: String!
+        coverArt: String
         description: String!
     }
 
@@ -63,8 +63,8 @@ const resolvers: Resolvers = {
                             title: movie.title,
                             overview: movie.description,
                             releaseDate: new Date(),
-                            backgroundImagePath: movie.coverArt,
-                            posterImagePath: movie.coverArt,
+                            backgroundImagePath: movie.coverArt ?? null,
+                            posterImagePath: movie.coverArt ?? null,
                             isAdult: false, 
                         }
                     }
@@ -102,7 +102,6 @@ const resolvers: Resolvers = {
                     fetchType: FetchType.Api
                 }
             } else {
-
                 await db.searchedKeyword.update({
                     where: {
                         keywordIdentifier: {
@@ -116,7 +115,6 @@ const resolvers: Resolvers = {
                         }
                     }
                 })
-
                 return {
                     movies: castToResolverMovies(cachedKeyword.movies),
                     totalCount:0,
