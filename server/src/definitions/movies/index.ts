@@ -1,6 +1,9 @@
 import gql from "graphql-tag";
 import { FetchType, Resolvers } from "../../gql/graphql.types";
 import { getMovies } from "../../api/getMovies";
+import { toUpper } from "lodash";
+import { Prisma } from "@prisma/client";
+import { castToResolverMovies } from "./utils";
 
 const typeDefs = gql`
 
@@ -30,29 +33,80 @@ const typeDefs = gql`
 const resolvers: Resolvers = {
     Query: {
         searchMovies: async (_root, { keyword, page }, { db }) => {
-
-            const keywordsMatch = await db.searchedKeyword.findMany({
+            const cachedKeyword = await db.searchedKeyword.findUnique({
                 where: {
-                    keyword: {
-                        equals: keyword,
-                        mode: 'insensitive'
+                    keywordIdentifier: {
+                        page: page ? page : 1,
+                        keyword: toUpper(keyword)
+                    },
+                    updatedAt: {
+                        gte: new Date(Date.now() - 1000 * 60 * 60 * 2)
                     }
+                },
+                select: {
+                    movies: true,
                 }
             })
 
-            const movies = [
-                {
-                    id: 1,
-                    title: 'The Matrix',
-                    coverArt: 'https://upload.wikimedia.org/wikipedia/en/c/c1/The_Matrix_Poster.jpg',
-                    description: 'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.'
-                }
-            ]
+            if ( !cachedKeyword ) {
+                // get movies from api
+                const { movies, metadata: { totalPages, totalResults }} = await getMovies(keyword, page ?? 1)
+                // save movies to db
 
-            return {
-                movies,
-                totalCount: movies.length,
-                fetchType: FetchType.Api
+                const moviesToSave = movies.map( movie => {
+                    const cause: Prisma.MovieCreateOrConnectWithoutSearchedKeywordsInput = {
+                        where: {
+                            id: movie.id.toString(),
+                        },
+                        create: {
+                            id: movie.id.toString(),
+                            title: movie.title,
+                            overview: movie.description,
+                            releaseDate: new Date(),
+                            backgroundImagePath: movie.coverArt,
+                            posterImagePath: movie.coverArt,
+                            isAdult: false, 
+                        }
+                    }
+
+                    return cause
+                })
+
+                if ( movies.length > 0 ) {
+                    await db.searchedKeyword.upsert({
+                        where: {
+                            keywordIdentifier: {
+                                keyword: toUpper(keyword),
+                                page: page ?? 1,
+                            }
+                        },
+                        update: {
+                            // update cache counter
+                            movies: {
+                                connectOrCreate: moviesToSave,
+                            },
+                        },
+                        create: {
+                            keyword: toUpper(keyword),
+                            page: page ?? 1,
+                            movies: {
+                                connectOrCreate: moviesToSave, 
+                            }
+                        }
+                    })
+                }
+                
+                return {
+                    movies,
+                    totalCount: totalResults,
+                    fetchType: FetchType.Api
+                }
+            } else {
+                return {
+                    movies: castToResolverMovies(cachedKeyword.movies),
+                    totalCount:0,
+                    fetchType: FetchType.Db
+                }
             }
         }
     }
