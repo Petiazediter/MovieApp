@@ -40,7 +40,7 @@ const resolvers: Resolvers = {
                         keyword: toUpper(keyword)
                     },
                     updatedAt: {
-                        gte: new Date(Date.now() - 1000 * 60 * 60 * 2)
+                        gte: new Date(Date.now() - (24 * 60 * 60 * 1000)).toISOString()
                     }
                 },
                 select: {
@@ -102,6 +102,21 @@ const resolvers: Resolvers = {
                     fetchType: FetchType.Api
                 }
             } else {
+
+                await db.searchedKeyword.update({
+                    where: {
+                        keywordIdentifier: {
+                            keyword: toUpper(keyword),
+                            page: page ?? 1,
+                        }
+                    },
+                    data: {
+                        cacheCounter: {
+                            increment: 1,
+                        }
+                    }
+                })
+
                 return {
                     movies: castToResolverMovies(cachedKeyword.movies),
                     totalCount:0,
