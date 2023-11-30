@@ -17,6 +17,7 @@ const typeDefs = gql`
         title: String!
         coverArt: String
         description: String!
+        releaseDate: String
     }
 
     type MovieResults {
@@ -54,15 +55,23 @@ const resolvers: Resolvers = {
                 // save movies to db
 
                 const moviesToSave = movies.map( movie => {
-                    const cause: Prisma.MovieCreateOrConnectWithoutSearchedKeywordsInput = {
+                    const cause: Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput = {
                         where: {
                             id: movie.id.toString(),
+                        },
+                        update: {
+                            title: movie.title,
+                            overview: movie.description,
+                            releaseDate: movie.releaseDate ?? undefined,
+                            backgroundImagePath: movie.coverArt ?? null,
+                            posterImagePath: movie.coverArt ?? null,
+                            isAdult: false,
                         },
                         create: {
                             id: movie.id.toString(),
                             title: movie.title,
                             overview: movie.description,
-                            releaseDate: new Date(),
+                            releaseDate: movie.releaseDate ?? new Date(),
                             backgroundImagePath: movie.coverArt ?? null,
                             posterImagePath: movie.coverArt ?? null,
                             isAdult: false, 
@@ -83,7 +92,7 @@ const resolvers: Resolvers = {
                         update: {
                             // update cache counter
                             movies: {
-                                connectOrCreate: moviesToSave,
+                                upsert: moviesToSave,
                             },
                         },
                         create: {
@@ -101,7 +110,9 @@ const resolvers: Resolvers = {
                     totalCount: totalResults,
                     fetchType: FetchType.Api
                 }
+
             } else {
+                
                 await db.searchedKeyword.update({
                     where: {
                         keywordIdentifier: {
@@ -115,6 +126,7 @@ const resolvers: Resolvers = {
                         }
                     }
                 })
+
                 return {
                     movies: castToResolverMovies(cachedKeyword.movies),
                     totalCount:0,
