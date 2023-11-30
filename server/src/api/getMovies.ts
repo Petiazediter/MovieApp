@@ -52,6 +52,7 @@ const castMovies = (movies: MovieApiResponse): Movie[] => {
     return movies.results.map(apiMovie => ({
         ...apiMovie,
         description: apiMovie.overview,
-        coverArt: apiMovie.poster_path
+        coverArt: apiMovie.poster_path,
+        releaseDate: apiMovie.release_date
     }))
 }

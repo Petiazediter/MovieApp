@@ -7,5 +7,6 @@ export const castToResolverMovies = (movies: Movie[]): DbMovie[] => {
         coverArt: movie.posterImagePath,
         description: movie.overview,
         id: Number(movie.id),
+        releaseDate: movie.releaseDate.toLocaleString()
     }))
 }

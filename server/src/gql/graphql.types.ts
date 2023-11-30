@@ -24,9 +24,10 @@ export enum FetchType {
 
 export type Movie = {
   __typename?: 'Movie';
-  coverArt: Scalars['String']['output'];
+  coverArt?: Maybe<Scalars['String']['output']>;
   description: Scalars['String']['output'];
   id: Scalars['Int']['output'];
+  releaseDate?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -140,9 +141,10 @@ export type ResolversParentTypes = {
 };
 
 export type MovieResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Movie'] = ResolversParentTypes['Movie']> = {
-  coverArt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  coverArt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  releaseDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
