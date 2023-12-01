@@ -3,7 +3,7 @@ import { FetchType, Resolvers } from "../../gql/graphql.types";
 import { getMovies } from "../../api/getMovies";
 import { toUpper } from "lodash";
 import { Prisma } from "@prisma/client";
-import { castToResolverMovies } from "./utils";
+import { castToResolverMovies, getMoviesToSave } from "./utils";
 
 const typeDefs = gql`
 
@@ -34,6 +34,7 @@ const typeDefs = gql`
 const resolvers: Resolvers = {
     Query: {
         searchMovies: async (_root, { keyword, page }, { db }) => {
+            // check if keyword is already cached:
             const cachedKeyword = await db.searchedKeyword.findUnique({
                 where: {
                     keywordIdentifier: {
@@ -50,36 +51,11 @@ const resolvers: Resolvers = {
             })
 
             if ( !cachedKeyword ) {
-                // get movies from api
+                // if not then get the movies from the third party API
                 const { movies, metadata: { totalPages, totalResults }} = await getMovies(keyword, page ?? 1)
-                // save movies to db
-
-                const moviesToSave = movies.map( movie => {
-                    const cause: Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput = {
-                        where: {
-                            id: movie.id.toString(),
-                        },
-                        update: {
-                            title: movie.title,
-                            overview: movie.description,
-                            releaseDate: movie.releaseDate ?? undefined,
-                            backgroundImagePath: movie.coverArt ?? null,
-                            posterImagePath: movie.coverArt ?? null,
-                            isAdult: false,
-                        },
-                        create: {
-                            id: movie.id.toString(),
-                            title: movie.title,
-                            overview: movie.description,
-                            releaseDate: movie.releaseDate ?? new Date(),
-                            backgroundImagePath: movie.coverArt ?? null,
-                            posterImagePath: movie.coverArt ?? null,
-                            isAdult: false, 
-                        }
-                    }
-
-                    return cause
-                })
+                
+                // Save the movies and the keyboard to the db
+                const moviesToSave = getMoviesToSave(movies)
 
                 if ( movies.length > 0 ) {
                     await db.searchedKeyword.upsert({
@@ -90,7 +66,8 @@ const resolvers: Resolvers = {
                             }
                         },
                         update: {
-                            // update cache counter
+                            // reset cache counter
+                            cacheCounter: 0,
                             movies: {
                                 upsert: moviesToSave,
                             },
@@ -98,6 +75,7 @@ const resolvers: Resolvers = {
                         create: {
                             keyword: toUpper(keyword),
                             page: page ?? 1,
+                            cacheCounter: 0,
                             movies: {
                                 connectOrCreate: moviesToSave, 
                             }
@@ -112,7 +90,9 @@ const resolvers: Resolvers = {
                 }
 
             } else {
+                // if the keyword is already cached then just return the saved values from the db
                 
+                // increment the cache counter
                 await db.searchedKeyword.update({
                     where: {
                         keywordIdentifier: {
