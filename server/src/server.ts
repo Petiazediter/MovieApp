@@ -7,7 +7,7 @@ import http from 'http'
 import definitions from './definitions'
 import { Context, resolveContext } from './definitions/context'
 
-const run = async () => {
+export const getServerEntities = () => {
     const app = express()
 
     const httpServer = http.createServer(app)
@@ -17,6 +17,13 @@ const run = async () => {
         resolvers: definitions.resolvers,
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
     })
+
+    return { app, httpServer, server }
+}
+
+const run = async () => {
+    
+    const { app, httpServer, server } = getServerEntities()
 
     await server.start()
 
