@@ -28,7 +28,7 @@ model SearchedKeyword {
 }
 
 model Movie {
-  id String @unique @id
+  id Int @unique @id
   title String
   overview String
   releaseDate DateTime

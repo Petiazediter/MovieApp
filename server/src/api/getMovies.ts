@@ -50,9 +50,12 @@ export const getMovies = (query: string, page: number): Promise<MoviesData> => {
 
 const castMovies = (movies: MovieApiResponse): Movie[] => {
     return movies.results.map(apiMovie => ({
-        ...apiMovie,
-        description: apiMovie.overview,
-        coverArt: apiMovie.poster_path,
+        id: apiMovie.id,
+        isAdult: apiMovie.adult,
+        overview: apiMovie.overview,
+        title: apiMovie.title,
+        posterImagePath: apiMovie.poster_path,
+        backgroundImagePath: apiMovie.poster_path,
         releaseDate: apiMovie.release_date
     }))
 }

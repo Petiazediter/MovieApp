@@ -2,34 +2,29 @@ import { Movie, Prisma } from "@prisma/client";
 import { Movie as DbMovie } from '../../gql/graphql.types'
 
 export const castToResolverMovies = (movies: Movie[]): DbMovie[] => {
-    return movies.map(movie => ({
-        ...movie,
-        coverArt: movie.posterImagePath,
-        description: movie.overview,
-        id: Number(movie.id),
-        releaseDate: movie.releaseDate.toLocaleString()
-    }))
+    return movies.map(movie => {
+        return {
+            ...movie,
+            id: movie.id,
+            releaseDate: movie.releaseDate.toISOString()
+        }
+    })
 }
 
-export const getMoviesToSave = (moviesFromApi: DbMovie[]): Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput[] => moviesFromApi.map(movie => ({
+export const getMoviesToSave = (moviesFromApi: DbMovie[]): Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput[] => 
+    moviesFromApi.filter(v => (v.id && true))
+    .map(movie => ({
     where: {
-        id: movie.id.toString(),
+        id: movie.id,
     },
     update: {
-        title: movie.title,
-        overview: movie.description,
-        releaseDate: movie.releaseDate ?? undefined,
-        backgroundImagePath: movie.coverArt ?? null,
-        posterImagePath: movie.coverArt ?? null,
-        isAdult: false,
+        ...movie,
+        releaseDate: new Date(movie.releaseDate ?? Date.now()),
+        isAdult: movie.isAdult ?? undefined,
     },
     create: {
-        id: movie.id.toString(),
-        title: movie.title,
-        overview: movie.description,
-        releaseDate: movie.releaseDate ?? new Date(),
-        backgroundImagePath: movie.coverArt ?? null,
-        posterImagePath: movie.coverArt ?? null,
-        isAdult: false, 
+        ...movie,
+        releaseDate: new Date(movie.releaseDate ?? Date.now()),
+        isAdult: movie.isAdult ?? false, 
     }
 }))

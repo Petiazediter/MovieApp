@@ -24,9 +24,11 @@ export enum FetchType {
 
 export type Movie = {
   __typename?: 'Movie';
-  coverArt?: Maybe<Scalars['String']['output']>;
-  description: Scalars['String']['output'];
+  backgroundImagePath?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
+  isAdult?: Maybe<Scalars['Boolean']['output']>;
+  overview: Scalars['String']['output'];
+  posterImagePath?: Maybe<Scalars['String']['output']>;
   releaseDate?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
 };
@@ -141,9 +143,11 @@ export type ResolversParentTypes = {
 };
 
 export type MovieResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Movie'] = ResolversParentTypes['Movie']> = {
-  coverArt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  backgroundImagePath?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isAdult?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  overview?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  posterImagePath?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   releaseDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

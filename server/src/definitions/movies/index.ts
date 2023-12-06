@@ -2,7 +2,6 @@ import gql from "graphql-tag";
 import { FetchType, Resolvers } from "../../gql/graphql.types";
 import { getMovies } from "../../api/getMovies";
 import { toUpper } from "lodash";
-import { Prisma } from "@prisma/client";
 import { castToResolverMovies, getMoviesToSave } from "./utils";
 
 const typeDefs = gql`
@@ -15,8 +14,10 @@ const typeDefs = gql`
     type Movie {
         id: Int!
         title: String!
-        coverArt: String
-        description: String!
+        overview: String!
+        posterImagePath: String
+        backgroundImagePath: String
+        isAdult: Boolean
         releaseDate: String
     }
 
@@ -35,6 +36,8 @@ const resolvers: Resolvers = {
     Query: {
         searchMovies: async (_root, { keyword, page }, { db }) => {
             // check if keyword is already cached:
+            const x = new Date(Date.now() - (24 * 60 * 60 * 1000)).toISOString()
+            console.log('2days ago',x )
             const cachedKeyword = await db.searchedKeyword.findUnique({
                 where: {
                     keywordIdentifier: {
@@ -42,7 +45,7 @@ const resolvers: Resolvers = {
                         keyword: toUpper(keyword)
                     },
                     updatedAt: {
-                        gte: new Date(Date.now() - (24 * 60 * 60 * 1000)).toISOString()
+                        gte: x
                     }
                 },
                 select: {
@@ -57,6 +60,7 @@ const resolvers: Resolvers = {
                 // Save the movies and the keyboard to the db
                 const moviesToSave = getMoviesToSave(movies)
 
+                console.log(JSON.stringify(moviesToSave.map(v => v.create.id)))
                 if ( movies.length > 0 ) {
                     await db.searchedKeyword.upsert({
                         where: {
@@ -77,7 +81,10 @@ const resolvers: Resolvers = {
                             page: page ?? 1,
                             cacheCounter: 0,
                             movies: {
-                                connectOrCreate: moviesToSave, 
+                                connectOrCreate: moviesToSave.map(v => ({
+                                    where: v.where,
+                                    create: v.create
+                                }))
                             }
                         }
                     })
