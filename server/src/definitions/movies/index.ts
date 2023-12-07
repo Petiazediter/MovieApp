@@ -36,16 +36,15 @@ const resolvers: Resolvers = {
     Query: {
         searchMovies: async (_root, { keyword, page }, { db }) => {
             // check if keyword is already cached:
-            const x = new Date(Date.now() - (24 * 60 * 60 * 1000)).toISOString()
-            console.log('2days ago',x )
+            const twoMinsAgo = new Date(Date.now() - (2 * 60 * 1000)).toISOString()
             const cachedKeyword = await db.searchedKeyword.findUnique({
                 where: {
                     keywordIdentifier: {
                         page: page ? page : 1,
                         keyword: toUpper(keyword)
                     },
-                    updatedAt: {
-                        gte: x
+                    createdAt: {
+                        gte: twoMinsAgo
                     }
                 },
                 select: {
