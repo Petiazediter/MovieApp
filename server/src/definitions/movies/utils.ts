@@ -1,17 +1,17 @@
-import { Movie, Prisma } from "@prisma/client";
-import { Movie as DbMovie } from '../../gql/graphql.types'
+import { Movie as DbMovie, Prisma } from "@prisma/client";
+import { Movie as ResolverMovie } from '../../gql/graphql.types'
 
-export const castToResolverMovies = (movies: Movie[]): DbMovie[] => {
+// From database => GRAPHQL Resolver
+export const castToResolverMovies = (movies: DbMovie[]): ResolverMovie[] => {
     return movies.map(movie => {
         return {
             ...movie,
-            id: movie.id,
             releaseDate: movie.releaseDate.toISOString()
         }
     })
 }
 
-export const getMoviesToSave = (moviesFromApi: DbMovie[]): Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput[] => 
+export const getMoviesToSave = (moviesFromApi: ResolverMovie[]): Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput[] => 
     moviesFromApi.filter(v => (v.id && true))
     .map(movie => ({
     where: {
@@ -20,7 +20,7 @@ export const getMoviesToSave = (moviesFromApi: DbMovie[]): Prisma.MovieUpsertWit
     update: {
         ...movie,
         releaseDate: new Date(movie.releaseDate ?? Date.now()),
-        isAdult: movie.isAdult ?? undefined,
+        isAdult: movie.isAdult ?? false,
     },
     create: {
         ...movie,
