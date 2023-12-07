@@ -202,7 +202,7 @@
             "deprecationReason": null
           },
           {
-            "name": "totalCount",
+            "name": "totalPages",
             "description": null,
             "args": [],
             "type": {

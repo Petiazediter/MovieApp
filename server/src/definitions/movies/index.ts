@@ -23,7 +23,7 @@ const typeDefs = gql`
 
     type MovieResults {
         movies: [Movie!]!
-        totalCount: Int!
+        totalPages: Int!
         fetchType: FetchType!
     }
 
@@ -49,17 +49,17 @@ const resolvers: Resolvers = {
                 },
                 select: {
                     movies: true,
+                    totalPage: true,
                 }
             })
 
             if ( !cachedKeyword ) {
                 // if not then get the movies from the third party API
-                const { movies, metadata: { totalPages, totalResults }} = await getMovies(keyword, page ?? 1)
+                const { movies, metadata: { totalPages }} = await getMovies(keyword, page ?? 1)
                 
                 // Save the movies and the keyboard to the db
                 const moviesToSave = getMoviesToSave(movies)
 
-                console.log(JSON.stringify(moviesToSave.map(v => v.create.id)))
                 if ( movies.length > 0 ) {
                     await db.searchedKeyword.upsert({
                         where: {
@@ -71,6 +71,7 @@ const resolvers: Resolvers = {
                         update: {
                             // reset cache counter
                             cacheCounter: 0,
+                            totalPage: totalPages,
                             movies: {
                                 upsert: moviesToSave,
                             },
@@ -79,6 +80,7 @@ const resolvers: Resolvers = {
                             keyword: toUpper(keyword),
                             page: page ?? 1,
                             cacheCounter: 0,
+                            totalPage: totalPages,
                             movies: {
                                 connectOrCreate: moviesToSave.map(v => ({
                                     where: v.where,
@@ -91,7 +93,7 @@ const resolvers: Resolvers = {
                 
                 return {
                     movies,
-                    totalCount: totalResults,
+                    totalPages,
                     fetchType: FetchType.Api
                 }
 
@@ -115,7 +117,7 @@ const resolvers: Resolvers = {
 
                 return {
                     movies: castToResolverMovies(cachedKeyword.movies),
-                    totalCount:0,
+                    totalPages: cachedKeyword.totalPage,
                     fetchType: FetchType.Db
                 }
             }

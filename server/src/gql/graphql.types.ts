@@ -37,7 +37,7 @@ export type MovieResults = {
   __typename?: 'MovieResults';
   fetchType: FetchType;
   movies: Array<Movie>;
-  totalCount: Scalars['Int']['output'];
+  totalPages: Scalars['Int']['output'];
 };
 
 export type Query = {
@@ -156,7 +156,7 @@ export type MovieResolvers<ContextType = Context, ParentType extends ResolversPa
 export type MovieResultsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MovieResults'] = ResolversParentTypes['MovieResults']> = {
   fetchType?: Resolver<ResolversTypes['FetchType'], ParentType, ContextType>;
   movies?: Resolver<Array<ResolversTypes['Movie']>, ParentType, ContextType>;
-  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalPages?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

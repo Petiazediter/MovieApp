@@ -16,6 +16,7 @@ model SearchedKeyword {
   
   keyword   String
   page Int
+  totalPage Int @default(1)
   
   cacheCounter Int @default(0)
 
