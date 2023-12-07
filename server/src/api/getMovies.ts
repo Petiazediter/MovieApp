@@ -1,4 +1,4 @@
-import { Movie } from "../gql/graphql.types";
+import { Movie as ResolverMovie } from "../gql/graphql.types";
 import axios from "axios";
 
 interface MovieApiResponse {
@@ -18,7 +18,7 @@ interface MovieApiResult {
 }
 
 interface MoviesData {
-    movies: Movie[],
+    movies: ResolverMovie[],
     metadata: {
         totalPages: number,
         totalResults: number
@@ -48,7 +48,7 @@ export const getMovies = (query: string, page: number): Promise<MoviesData> => {
     })
 }
 
-const castMovies = (movies: MovieApiResponse): Movie[] => {
+const castMovies = (movies: MovieApiResponse): ResolverMovie[] => {
     return movies.results.map(apiMovie => ({
         id: apiMovie.id,
         isAdult: apiMovie.adult,
