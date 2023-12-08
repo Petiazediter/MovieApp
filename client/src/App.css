@@ -3,3 +3,10 @@
   margin: 2em;
   box-sizing: border-box;
 }
+
+@media ( max-width: 740px ) {
+  .App {
+    margin-left: 20%;
+    margin-right: 20%;
+  }
+}
