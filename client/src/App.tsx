@@ -1,10 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css'
 import { gql, useLazyQuery } from '@apollo/client';
 import { FetchType, SearchMovieQuery, SearchMovieQueryArguments } from './gql/movies';
 import SearchBox from './components/SearchBox';
 import MovieList from './components/MovieList';
 import InfoBox from './components/Infobox';
+import Pagination from './components/Pagination';
 
 function App() {
 
@@ -25,22 +26,40 @@ function App() {
     }`, { fetchPolicy: 'network-only' }
   )
 
-  const callback = useCallback( (value: string) => {
-    fetchData({variables: {
-      keyword: value,
-      page: 1,
-    }, fetchPolicy: 'no-cache'})
-  }, [fetchData])
+  const [page, setPage] = useState(1)
+  const [keyword, setKeyword] = useState<string>('')
+
+  useEffect( () => {
+    fetchData({
+      variables: {
+        keyword,
+        page
+      }
+    })
+  }, [keyword, page, fetchData])
+
+  const searchCallback = useCallback( (value: string) => {
+    setKeyword(value)
+    setPage(1)
+  }, [])
+
+  const paginationCallback = useCallback( (page: number) => {
+    setPage(page)
+  }, [])
   
   return (
     <main className="App">
-        <SearchBox onSubmit={callback} />
+        <SearchBox onSubmit={searchCallback} />
         { data && <InfoBox text={`Results are pulled from ${data.searchMovies.fetchType}`} />}
         <MovieList movieResults={data?.searchMovies ?? {
           movies: [],
           totalPages: 0,
           fetchType: FetchType.API
         }} />
+        <Pagination 
+          onChoosePage={paginationCallback}
+          currentPage={page} 
+          maxPages={data?.searchMovies.totalPages ?? 1} />
     </main>
   );
 }
