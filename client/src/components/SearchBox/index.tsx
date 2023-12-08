@@ -2,7 +2,7 @@ import { FormEvent, memo, useState } from 'react'
 import Styled from './styles'
 
 type Props = {
-    onChangeValueListener: (value: string) => void
+    onSubmit: (value: string) => void
 }
 
 const SearchBox = (props: Props) => {
@@ -11,7 +11,7 @@ const SearchBox = (props: Props) => {
 
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        props.onChangeValueListener(searchValue)
+        props.onSubmit(searchValue)
     }
 
     return (<form onSubmit={onSubmit}>
