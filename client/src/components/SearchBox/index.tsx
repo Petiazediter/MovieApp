@@ -14,12 +14,12 @@ const SearchBox = (props: Props) => {
         props.onSubmit(searchValue)
     }
 
-    return (<form onSubmit={onSubmit}>
+    return (<Styled.Wrapper onSubmit={onSubmit}>
         <Styled.SearchBox 
             onChange={(v) => setSearchValue(v.currentTarget.value)}
             type='search' />
         <Styled.SearchButton type='submit'>Search</Styled.SearchButton>
-    </form>)
+    </Styled.Wrapper>)
 }
 
 const SearchBoxMemo = memo(SearchBox)
