@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 const List = styled.ul({
-    margin: '2em',
     padding: 0,
     listStyle: 'none',
     display: 'grid', 
