@@ -22,6 +22,10 @@ export const MovieList = ({ movieResults }: Props) => {
                 src={getLink(movie)}
                 alt="Poster of the movie"
             />
+            <Styled.MovieDetail>
+                <Styled.MovieTitle>{movie.title}</Styled.MovieTitle>
+                <p>{movie.releaseDate}</p>
+            </Styled.MovieDetail>
         </Styled.ListItem>))}
     </Styled.List>
 }
