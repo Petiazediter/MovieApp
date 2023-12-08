@@ -1,6 +1,9 @@
+import { useCallback } from 'react';
 import './App.css'
 import { gql, useLazyQuery } from '@apollo/client';
 import { FetchType, SearchMovieQuery, SearchMovieQueryArguments } from './gql/movies';
+import SearchBox from './components/SearchBox';
+import MovieList from './components/MovieList';
 
 function App() {
 
@@ -29,22 +32,14 @@ function App() {
   }, [fetchData])
   
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main className="App">
+        <SearchBox onSubmit={callback} />
+        <MovieList movieResults={data?.searchMovies ?? {
+          movies: [],
+          totalPages: 0,
+          fetchType: FetchType.API
+        }} />
+    </main>
   );
 }
 
