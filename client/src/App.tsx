@@ -30,12 +30,18 @@ function App() {
   const [keyword, setKeyword] = useState<string>('')
 
   useEffect( () => {
-    fetchData({
-      variables: {
-        keyword,
-        page
-      }
-    })
+    if ( keyword.replaceAll(' ', '') !== '') {
+      fetchData({
+        variables: {
+          keyword,
+          page
+        }
+      }).then( v => {
+        if ( !v.data ) {
+          setPage(1)
+        }
+      })
+    }
   }, [keyword, page, fetchData])
 
   const searchCallback = useCallback( (value: string) => {
