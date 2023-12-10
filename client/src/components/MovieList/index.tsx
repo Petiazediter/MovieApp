@@ -20,12 +20,15 @@ export const MovieList = ({ movieResults }: Props) => {
         {movieResults.movies.map((movie) => (<Styled.ListItem key={movie.id}>
             <Styled.PosterImage 
                 src={getLink(movie)}
-               // alt="Poster of the movie"
             />
-            <Styled.MovieDetail>
+            <Styled.MovieDetail className="detail">
                 <Styled.MovieTitle>{movie.title}</Styled.MovieTitle>
                 {movie.releaseDate && <p>{new Date(movie.releaseDate).getFullYear()}</p>}
             </Styled.MovieDetail>
+
+            <Styled.MovieDescription className="desc">
+                {movie.overview}
+            </Styled.MovieDescription>
         </Styled.ListItem>))}
     </Styled.List>
 }

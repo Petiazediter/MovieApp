@@ -11,6 +11,14 @@ const List = styled.ul({
         display: 'flex',
         flexDirection: 'column',
         gap: '1em'
+    },
+
+    ':hover > section.desc ': {
+        display: 'block',
+    },
+
+    ':hover > section.detail ': {
+        display: 'none'
     }
 })
 
@@ -29,7 +37,7 @@ const ListItem = styled.li({
 const PosterImage = styled.img({
     width: '100%',
     aspectRatio: '6/9',
-    backgroundColor: 'red',
+    backgroundColor: 'black',
     '@media (max-width: 740px)': {
         aspectRatio: '1/1'
     }
@@ -64,12 +72,26 @@ const MovieTitle = styled.h1({
     width: '100%'
 })
 
+const MovieDescription = styled.section({
+    display: 'none',
+    position: 'absolute',
+    left: 0, 
+    top: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,.9)',
+    padding: '1em',
+    boxSizing: 'border-box',
+    color: 'white'
+})
+
 const Styled = {
     List,
     ListItem,
     PosterImage,
     MovieDetail,
-    MovieTitle
+    MovieTitle,
+    MovieDescription
 }
 
 export default Styled
