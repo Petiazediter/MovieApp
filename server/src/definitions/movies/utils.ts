@@ -41,20 +41,20 @@ export const getMoviesToSave = (moviesFromApi: ResolverMovie[]): Prisma.MovieUps
 export const getCachedKeyword = async (keyword: string, page: number = 1, context: Context) => {
     const twoMinsAgo = new Date(Date.now() - (2 * 60 * 1000)).toISOString()
     return context.db.searchedKeyword.findUnique({
-                    where: {
-                        keywordIdentifier: {
-                            page: page ? page : 1,
-                            keyword: toUpper(keyword)
-                        },
-                        updatedAt: {
-                            gte: twoMinsAgo
-                        }
-                    },
-                    select: {
-                        movies: true,
-                        totalPage: true,
-                    }
-                })
+        where: {
+            keywordIdentifier: {
+                page: page ? page : 1,
+                keyword: toUpper(keyword)
+            },
+            updatedAt: {
+                gte: twoMinsAgo
+            }
+        },
+        select: {
+            movies: true,
+            totalPage: true,
+        }
+    })
 }
 
 export const upsertSearchKeyword = async (
@@ -64,7 +64,7 @@ export const upsertSearchKeyword = async (
     movies: Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput[],
     totalPages: number
 ) => {
-        await db.searchedKeyword.upsert({
+    await db.searchedKeyword.upsert({
         where: {
             keywordIdentifier: {
                 keyword: toUpper(keyword),
