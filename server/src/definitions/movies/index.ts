@@ -1,7 +1,6 @@
 import gql from "graphql-tag";
 import { FetchType, Resolvers } from "../../gql/graphql.types";
 import { getMovies } from "../../api/getMovies";
-import { toUpper } from "lodash";
 import { castToResolverMovies, getCachedKeyword, getMoviesToSave, updateKeywordCache, upsertSearchKeyword } from "./utils";
 
 const typeDefs = gql`
