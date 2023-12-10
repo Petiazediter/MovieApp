@@ -43,7 +43,7 @@ const resolvers: Resolvers = {
                         page: page ? page : 1,
                         keyword: toUpper(keyword)
                     },
-                    createdAt: {
+                    updatedAt: {
                         gte: twoMinsAgo
                     }
                 },
