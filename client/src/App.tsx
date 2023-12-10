@@ -10,7 +10,7 @@ import { ErrorDetails } from './App.style';
 
 function App() {
 
-  const [fetchData, { data, error }] = useLazyQuery<SearchMovieQuery, SearchMovieQueryArguments>(gql`
+  const [fetchData, { data, error, loading }] = useLazyQuery<SearchMovieQuery, SearchMovieQueryArguments>(gql`
     query SearchQuery($keyword: String!, $page: Int) {
       searchMovies(keyword: $keyword, page: $page) {
         fetchType
@@ -61,6 +61,7 @@ function App() {
             <summary>Something went wrong</summary>
             { error?.message ?? 'error message' }
           </ErrorDetails>}
+        { loading && <InfoBox text={'Fetching data...'} />}
         { data && <>
             <InfoBox text={`Results are pulled from ${data.searchMovies.fetchType}`} />
             <MovieList movieResults={data?.searchMovies ?? {
