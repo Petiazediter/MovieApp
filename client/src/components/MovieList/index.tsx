@@ -1,6 +1,7 @@
 import { useCallback } from "react"
 import { Movie, SearchMovieQuery } from "../../gql/movies"
 import Styled from "./styles"
+import Empty from "./EmptyState"
 
 type Props = {
     movieResults: SearchMovieQuery['searchMovies']
@@ -13,7 +14,7 @@ export const MovieList = ({ movieResults }: Props) => {
     }, [])
     
     if ( movieResults.movies.length === 0 ) {
-        return <>Empty list</>
+        return <Empty />
     }
 
     return <Styled.List>

@@ -85,13 +85,19 @@ const MovieDescription = styled.section({
     color: 'white'
 })
 
+const EmptyPageWrapper = styled.section({
+    margin: '2em',
+    color: 'white'
+})
+
 const Styled = {
     List,
     ListItem,
     PosterImage,
     MovieDetail,
     MovieTitle,
-    MovieDescription
+    MovieDescription,
+    EmptyPageWrapper
 }
 
 export default Styled

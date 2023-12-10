@@ -6,6 +6,7 @@ import SearchBox from './components/SearchBox';
 import MovieList from './components/MovieList';
 import InfoBox from './components/Infobox';
 import Pagination from './components/Pagination';
+import { ErrorDetails } from './App.style';
 
 function App() {
 
@@ -56,12 +57,19 @@ function App() {
   return (
     <main className="App">
         <SearchBox onSubmit={searchCallback} />
-        { data && <InfoBox text={`Results are pulled from ${data.searchMovies.fetchType}`} />}
-        <MovieList movieResults={data?.searchMovies ?? {
-          movies: [],
-          totalPages: 0,
-          fetchType: FetchType.API
-        }} />
+        { error && <ErrorDetails>
+            <summary>Something went wrong</summary>
+            { error?.message ?? 'error message' }
+          </ErrorDetails>}
+        { data && <>
+            <InfoBox text={`Results are pulled from ${data.searchMovies.fetchType}`} />
+            <MovieList movieResults={data?.searchMovies ?? {
+              movies: [],
+              totalPages: 0,
+              fetchType: FetchType.API
+              }}
+            />
+        </> }
         <Pagination 
           onChoosePage={paginationCallback}
           currentPage={page} 

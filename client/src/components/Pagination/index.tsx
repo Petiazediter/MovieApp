@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import Styled from "./style"
 
 type Props = {
@@ -8,16 +8,27 @@ type Props = {
 }
 
 const Pagination = ({ currentPage, maxPages, onChoosePage }: Props) => {
+    
+    const pages = useMemo( () => {
+        const pages = Array.from(new Array(maxPages))
+            .map((v, i) => i+1)
+        const pageIndex = pages.indexOf(currentPage)
+        const startIndex = Math.max(pageIndex-10, 0)
+        const endIndex = Math.min(pages.length - 1, pageIndex + 10)
+        return pages.slice(startIndex,endIndex)
+    },
+    [maxPages, currentPage])
+
     if ( maxPages === 1 ) {
         return null
     }
 
     return <Styled.PaginationWrapper>
-        {Array.from(new Array(maxPages)).map( (_v, i) => (
+        {pages.map( page => (
             <Styled.PaginationItem 
-                onClick={() => onChoosePage(i+1)}
-                isCurrent={(i+1) === currentPage}
-                key={i}>{i+1}</Styled.PaginationItem>)
+                onClick={() => onChoosePage(page)}
+                isCurrent={(page) === currentPage}
+                key={page}>{page}</Styled.PaginationItem>)
         )}
     </Styled.PaginationWrapper>
 }
