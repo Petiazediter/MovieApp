@@ -1,5 +1,7 @@
 import { Movie as DbMovie, Prisma } from "@prisma/client";
 import { Movie as ResolverMovie } from '../../gql/graphql.types'
+import { Context } from "../context";
+import { toUpper } from "lodash";
 
 // From database => GRAPHQL Resolver
 export const castToResolverMovies = (movies: DbMovie[]): ResolverMovie[] => {
@@ -35,3 +37,79 @@ export const getMoviesToSave = (moviesFromApi: ResolverMovie[]): Prisma.MovieUps
             }
     }
 })
+
+export const getCachedKeyword = async (keyword: string, page: number = 1, context: Context) => {
+    const twoMinsAgo = new Date(Date.now() - (2 * 60 * 1000)).toISOString()
+    return context.db.searchedKeyword.findUnique({
+                    where: {
+                        keywordIdentifier: {
+                            page: page ? page : 1,
+                            keyword: toUpper(keyword)
+                        },
+                        updatedAt: {
+                            gte: twoMinsAgo
+                        }
+                    },
+                    select: {
+                        movies: true,
+                        totalPage: true,
+                    }
+                })
+}
+
+export const upsertSearchKeyword = async (
+    keyword: string,
+    page: number,
+    { db }: Context,
+    movies: Prisma.MovieUpsertWithWhereUniqueWithoutSearchedKeywordsInput[],
+    totalPages: number
+) => {
+        await db.searchedKeyword.upsert({
+        where: {
+            keywordIdentifier: {
+                keyword: toUpper(keyword),
+                page: page ?? 1,
+            }
+        },
+        update: {
+            // reset cache counter
+            cacheCounter: 0,
+            totalPage: totalPages,
+            movies: {
+                upsert: movies,
+            },
+        },
+        create: {
+            keyword: toUpper(keyword),
+            page: page ?? 1,
+            cacheCounter: 0,
+            totalPage: totalPages,
+            movies: {
+                connectOrCreate: movies.map(v => ({
+                    where: v.where,
+                    create: v.create
+                }))
+            }
+        }
+    })
+}
+
+export const updateKeywordCache = async (
+    keyword: string,
+    page: number,
+    { db }: Context
+) => {
+    await db.searchedKeyword.update({
+        where: {
+            keywordIdentifier: {
+                keyword: toUpper(keyword),
+                page: page ?? 1,
+            }
+        },
+        data: {
+            cacheCounter: {
+                increment: 1,
+            }
+        }
+    })
+}

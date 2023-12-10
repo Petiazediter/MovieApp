@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import { FetchType, Resolvers } from "../../gql/graphql.types";
 import { getMovies } from "../../api/getMovies";
 import { toUpper } from "lodash";
-import { castToResolverMovies, getMoviesToSave } from "./utils";
+import { castToResolverMovies, getCachedKeyword, getMoviesToSave, updateKeywordCache, upsertSearchKeyword } from "./utils";
 
 const typeDefs = gql`
 
@@ -37,22 +37,7 @@ const resolvers: Resolvers = {
         searchMovies: async (_root, { keyword, page }, { db }) => {
             // check if keyword is already cached:
             try {
-                const twoMinsAgo = new Date(Date.now() - (2 * 60 * 1000)).toISOString()
-                const cachedKeyword = await db.searchedKeyword.findUnique({
-                    where: {
-                        keywordIdentifier: {
-                            page: page ? page : 1,
-                            keyword: toUpper(keyword)
-                        },
-                        updatedAt: {
-                            gte: twoMinsAgo
-                        }
-                    },
-                    select: {
-                        movies: true,
-                        totalPage: true,
-                    }
-                })
+                const cachedKeyword = await getCachedKeyword(keyword, page ?? 1, { db })
 
                 if ( !cachedKeyword ) {
                     // if not then get the movies from the third party API
@@ -64,34 +49,13 @@ const resolvers: Resolvers = {
 
                         if ( movies.length > 0 ) {
                             try {
-                                await db.searchedKeyword.upsert({
-                                    where: {
-                                        keywordIdentifier: {
-                                            keyword: toUpper(keyword),
-                                            page: page ?? 1,
-                                        }
-                                    },
-                                    update: {
-                                        // reset cache counter
-                                        cacheCounter: 0,
-                                        totalPage: totalPages,
-                                        movies: {
-                                            upsert: moviesToSave,
-                                        },
-                                    },
-                                    create: {
-                                        keyword: toUpper(keyword),
-                                        page: page ?? 1,
-                                        cacheCounter: 0,
-                                        totalPage: totalPages,
-                                        movies: {
-                                            connectOrCreate: moviesToSave.map(v => ({
-                                                where: v.where,
-                                                create: v.create
-                                            }))
-                                        }
-                                    }
-                                })
+                                await upsertSearchKeyword(
+                                    keyword,
+                                    page ?? 1,
+                                    { db },
+                                    moviesToSave,
+                                    totalPages
+                                )
                             } catch (e) {
                                 throw new Error(`Database error: ${JSON.stringify(e)}`)
                             }
@@ -111,20 +75,7 @@ const resolvers: Resolvers = {
                     // if the keyword is already cached then just return the saved values from the db
                     
                     // increment the cache counter
-                    await db.searchedKeyword.update({
-                        where: {
-                            keywordIdentifier: {
-                                keyword: toUpper(keyword),
-                                page: page ?? 1,
-                            }
-                        },
-                        data: {
-                            cacheCounter: {
-                                increment: 1,
-                            }
-                        }
-                    })
-
+                    await updateKeywordCache(keyword, page ?? 1, { db })
                     return {
                         movies: castToResolverMovies(cachedKeyword.movies),
                         totalPages: cachedKeyword.totalPage,
